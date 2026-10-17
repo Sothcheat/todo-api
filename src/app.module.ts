@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { TodosModule } from './todos/todos.module.js';
+import { ProfileModule } from './profile/profile.module.js';
 
 @Module({
   imports: [
@@ -18,12 +19,11 @@ import { TodosModule } from './todos/todos.module.js';
         password: config.get('DB_PASSWORD', ''),
         database: config.get('DB_NAME', 'todo'),
         autoLoadEntities: true,
-        // Creates/alters tables from the entities. Dev only — use migrations in production.
-        // synchronize: config.get('NODE_ENV') !== 'production',
         synchronize: false,
       }),
     }),
     TodosModule,
+    ProfileModule,
   ],
   controllers: [AppController],
   providers: [AppService],
