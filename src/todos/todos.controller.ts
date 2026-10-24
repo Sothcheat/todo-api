@@ -12,37 +12,45 @@ import {
 import { TodosService } from './todos.service.js';
 import { CreateTodoDto } from './dto/create-todo.dto.js';
 import { UpdateTodoDto } from './dto/update-todo.dto.js';
+import { CurrentUser, type AuthUser } from '../auth/auth.decorators.js';
 
 @Controller('todos')
 export class TodosController {
   constructor(private readonly todosService: TodosService) {}
 
   @Post()
-  create(@Body() createTodoDto: CreateTodoDto) {
-    return this.todosService.create(createTodoDto);
+  create(@CurrentUser() user: AuthUser, @Body() createTodoDto: CreateTodoDto) {
+    return this.todosService.create(user.id, createTodoDto);
   }
 
   @Get()
-  findAll() {
-    return this.todosService.findAll();
+  findAll(@CurrentUser() user: AuthUser) {
+    return this.todosService.findAll(user.id);
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.todosService.findOne(id);
+  findOne(
+    @CurrentUser() user: AuthUser,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.todosService.findOne(user.id, id);
   }
 
   @Patch(':id')
   update(
+    @CurrentUser() user: AuthUser,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateTodoDto: UpdateTodoDto,
   ) {
-    return this.todosService.update(id, updateTodoDto);
+    return this.todosService.update(user.id, id, updateTodoDto);
   }
 
   @Delete(':id')
   @HttpCode(204)
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.todosService.remove(id);
+  remove(
+    @CurrentUser() user: AuthUser,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.todosService.remove(user.id, id);
   }
 }
