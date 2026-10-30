@@ -26,6 +26,9 @@ const hashToken = (token: string) =>
 
 @Injectable()
 export class AuthService {
+  // Checked against when the email is unknown. Nobody knows its password.
+  private readonly dummyHash = argon2.hash(randomBytes(32).toString('hex'));
+
   constructor(
     @InjectRepository(User)
     private readonly users: Repository<User>,
@@ -46,8 +49,10 @@ export class AuthService {
       where: { email },
       select: { id: true, username: true, passwordHash: true },
     });
-    // Same error for an unknown email and a wrong password, so neither leaks which.
-    if (!user || !(await argon2.verify(user.passwordHash, password))) {
+    // Same error and the same argon2 work for an unknown email and a wrong
+    // password, so neither the message nor the response time leaks which.
+    const hash = user?.passwordHash ?? (await this.dummyHash);
+    if (!(await argon2.verify(hash, password)) || !user) {
       throw new UnauthorizedException('Wrong email or password');
     }
     return this.issueTokens(user);

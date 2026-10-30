@@ -14,7 +14,7 @@ export class ProfileService {
     private readonly usersService: UsersService,
   ) {}
 
-  // username and email live on User, but the client sees one flat profile.
+  // username, email and role live on User, but the client sees one flat profile.
   async get(userId: string) {
     const profile = await this.repo.findOne({
       where: { userId },
@@ -22,7 +22,12 @@ export class ProfileService {
     });
     if (!profile) throw new NotFoundException('Profile not found');
     const { user, ...rest } = profile;
-    return { ...rest, username: user.username, email: user.email };
+    return {
+      ...rest,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+    };
   }
 
   async update(
