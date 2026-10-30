@@ -9,6 +9,10 @@ import {
 } from 'typeorm';
 import { Profile } from '../../profile/entities/profile.entity.js';
 
+// "admin" can manage every user and todo; "user" only their own.
+export const userRoles = ['user', 'admin'] as const;
+export type Role = (typeof userRoles)[number];
+
 // The login identity. Public details (name, bio) live on Profile.
 @Entity('users')
 export class User {
@@ -23,6 +27,9 @@ export class User {
 
   @Column({ type: 'varchar', length: 255, select: false })
   passwordHash: string;
+
+  @Column({ type: 'enum', enum: userRoles, default: 'user' })
+  role: Role;
 
   @OneToOne(() => Profile, (profile) => profile.user)
   profile: Relation<Profile>;
